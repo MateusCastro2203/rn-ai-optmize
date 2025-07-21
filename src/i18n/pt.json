@@ -1,0 +1,20 @@
+{
+  "analyzing": "Analisando {{file}}...",
+  "not_found": "Arquivo não encontrado: {{file}}",
+  "suggestions": "Sugestões de Performance:",
+  "reports": {
+    "title": "Análise de Performance - React Native",
+    "file": "Arquivo",
+    "model": "Modelo",
+    "date": "Data",
+    "tool": "Ferramenta",
+    "analysis_suggestions": "Análise e Sugestões",
+    "next_steps": "Próximos Passos",
+    "footer_text": "Relatório gerado por",
+    "footer_love": "Feito com ❤️ para a comunidade React Native",
+    "before": "Antes",
+    "after": "Depois",
+    "code": "código",
+    "saved_in": "Relatórios salvos em"
+  }
+}
