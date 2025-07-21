@@ -368,7 +368,8 @@ MIT License © 2024 [Mateus Castro](https://github.com/your-username)
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/your-username/rn-ai-optimize/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/rn-ai-optimize/discussions)
-- 📧 **Email**: your-email@example.com
+- 📧 **Email**: mateustcastro@gmail.com
+- **Linkedin**: [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mateus-castro-b49559169/)
 
 ---
 
