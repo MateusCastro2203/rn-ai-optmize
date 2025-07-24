@@ -1,6 +1,6 @@
 {
   "name": "rn-ai-optimize",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A tool to optimize React Native code using AI",
   "main": "dist/bin/index.js",
   "bin": {
