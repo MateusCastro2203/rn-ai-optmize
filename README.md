@@ -356,18 +356,16 @@ rn-ai-optimize --help
 
 ## 📜 License
 
-MIT License © 2024 [Mateus Castro](https://github.com/your-username)
+MIT License © 2024 [Mateus Castro](https://github.com/MateusCastro2203)
 
 ## 🙏 Acknowledgments
 
 - [OpenAI](https://openai.com) for GPT API
 - [React Native](https://reactnative.dev) community
-- All [contributors](https://github.com/your-username/rn-ai-optimize/contributors)
 
 ## 💬 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-username/rn-ai-optimize/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/rn-ai-optimize/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/MateusCastro2203/rn-ai-optmize/issues)
 - 📧 **Email**: mateustcastro@gmail.com
 - **Linkedin**: [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mateus-castro-b49559169/)
 
@@ -377,6 +375,6 @@ MIT License © 2024 [Mateus Castro](https://github.com/your-username)
 
 **Made with ❤️ for the React Native community**
 
-[⭐ Star on GitHub](https://github.com/your-username/rn-ai-optimize) • [📦 NPM](https://npmjs.com/package/rn-ai-optimize) • [📖 Docs](https://github.com/your-username/rn-ai-optimize#readme)
+[⭐ Star on GitHub](https://github.com/your-username/rn-ai-optimize) • [📦 NPM](https://npmjs.com/package/rn-ai-optimize) • [📖 Docs](https://github.com/MateusCastro2203/rn-ai-optmize?tab=readme-ov-file#readme)
 
 </div>

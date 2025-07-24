@@ -6,6 +6,10 @@
   "bin": {
     "rn-ai-optimize": "./dist/bin/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MateusCastro2203/rn-ai-optmize"
+  },
   "type": "module",
   "files": [
     "dist/**/*",
@@ -18,7 +22,8 @@
     "build": "tsc && npm run copy-assets",
     "copy-assets": "cp -r src/i18n/*.json dist/src/i18n/",
     "start": "node dist/bin/index.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "build-and-push": "npm run build && npm publish"
   },
   "keywords": [
     "react-native",
