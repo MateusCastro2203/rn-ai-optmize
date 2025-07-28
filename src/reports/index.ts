@@ -6,14 +6,31 @@ import { generateReport } from "./reportGenerator.js";
 
 export async function generateReports(result: AnalysisResult): Promise<void> {
   const resultsDir = path.join(process.cwd(), "ai-results");
+  const fileDir = path.dirname(result.filePath);
+  const parentFolderName = path.basename(fileDir);
+  let targetDir: string;
 
-  // Criar pasta ai-results se não existir
-  console.log(`\n🔍 Checking reports directory...`);
-  console.log(`   📂  ${resultsDir}`);
+  if (result.batchMode) {
+    const folderDir = path.join(resultsDir, parentFolderName);
+    targetDir = folderDir;
 
-  if (!fs.existsSync(resultsDir)) {
-    fs.mkdirSync(resultsDir, { recursive: true });
-    console.log(`   ✔️  Created directory`);
+    console.log(`\n🔍 Checking reports directory (batch mode)...`);
+    console.log(`   📂  Base: ${resultsDir}`);
+    console.log(`   📁  File folder: ${parentFolderName}`);
+    console.log(`   📂  Target: ${targetDir}`);
+  } else {
+    // MODO ARQUIVO ÚNICO: Direto na pasta ai-results
+    targetDir = path.join(resultsDir, parentFolderName);
+
+    console.log(`\n🔍 Checking reports directory (single file)...`);
+    console.log(`   📂  Target: ${targetDir}`);
+    console.log(`   📁  File folder: ${parentFolderName}`);
+  }
+
+  // Criar a estrutura de pastas
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+    console.log(`   ✔️  Created directory structure`);
   } else {
     console.log(`   ✔️  Directory already exists`);
   }
@@ -22,19 +39,18 @@ export async function generateReports(result: AnalysisResult): Promise<void> {
     result.filePath,
     path.extname(result.filePath)
   );
-
   console.log(`\n✂️  Base filename: ${fileName}`);
 
   const timestamp = result.timestamp.replace(/[:.]/g, "-");
-
-  await generateReport(result, resultsDir, fileName, timestamp);
+  await generateReport(result, targetDir, fileName, timestamp);
 
   console.log(`
     🚀  Report Generation Complete!
     ───────────────────────────────────
-    📁  Reports Folder : ${resultsDir}
-    📄  Report File    : ${fileName}-${result.timestamp}.md
+    📁  Reports Folder : ${targetDir}
+    📄  Report File    : ${fileName}-${timestamp}.md
     📅  Timestamp      : ${result.timestamp}
+    📂  Mode           : ${result.batchMode ? "Multiple Files" : "Single File"}
     ───────────────────────────────────
     `);
 }

@@ -3,4 +3,5 @@ export interface AnalysisResult {
   analysis: string;
   timestamp: string;
   model: string;
+  batchMode?: boolean;
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { analyzeFile } from "../src/analyzeFile.js";
+import { analyzeFile, analyzeMultipleFiles } from "../src/utils/index.js";
+import { createInteractiveCommand } from "../src/comands/index.js";
 
 const program = new Command();
 
@@ -9,7 +10,9 @@ program
   .description(
     "Analyzes a React Native screen and suggests performance improvements using AI"
   )
-  .version("0.1.0-beta.1")
+  .version("0.1.0-beta.1");
+
+program
   .argument("[file]", "File to analyze")
   .option(
     "--model <model>",
@@ -20,8 +23,9 @@ program
   .option("--language <language>", "Use language (e.g.: pt, en)")
   .option("--projectType <type>", "Project type (e.g.: react-native, expo)")
   .option("--versionApp <version>", "Project version (e.g.: 0.1.0)")
-  .action(async (file: string, options: any) => {
-    if (!file) {
+  .option("--batch", "Process all files in batch mode")
+  .action(async (files: string[], options: any) => {
+    if (!files) {
       console.log("💡 Use 'rn-ai-optimize analyze' for interactive mode");
       console.log("📚 Or use: rn-ai-optimize <file>");
       program.help();
@@ -34,15 +38,28 @@ program
       console.error("💡 Configure in .env or use --apiKey");
       return;
     }
-
-    await analyzeFile(
-      file,
-      options.model,
-      apiKey,
-      options.language,
-      options.projectType,
-      options.versionApp
-    );
+    if (files.length > 1) {
+      await analyzeMultipleFiles(
+        files,
+        options.model,
+        apiKey,
+        options.language,
+        options.projectType,
+        options.versionApp,
+        options.batch
+      );
+    } else {
+      await analyzeFile(
+        files[0],
+        options.model,
+        apiKey,
+        options.language,
+        options.projectType,
+        options.versionApp
+      );
+    }
   });
+
+program.addCommand(createInteractiveCommand());
 
 program.parse();

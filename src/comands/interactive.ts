@@ -2,7 +2,8 @@ import { Command } from "commander";
 import { select, input, confirm } from "@inquirer/prompts";
 import fs from "fs";
 import path from "path";
-import { analyzeFile } from "../analyzeFile.js";
+import { analyzeFile } from "../utils/analyzeFile.js";
+import { analyzeMultipleFiles } from "../utils/analyzeMultipleFiles.js";
 
 interface Config {
   model: string;
@@ -24,10 +25,10 @@ function loadConfig(): Config {
     return JSON.parse(fs.readFileSync(configPath, "utf-8"));
   }
 
-  // Configuração padrão
+  // Default configuration
   return {
     model: "gpt-4o",
-    language: "pt",
+    language: "en", // Changed default to English
     projectType: "React Native",
     version: "0.76.9",
     openInBrowser: true,
@@ -39,7 +40,7 @@ function loadConfig(): Config {
     },
     apiKey: {
       env: "OPENAI_API_KEY",
-      description: "Coloque sua chave da OpenAI no arquivo .env",
+      description: "Put your OpenAI API key in the .env file",
     },
   };
 }
@@ -70,68 +71,26 @@ function findFiles(
 
 export function createInteractiveCommand(): Command {
   const interactiveCmd = new Command("analyze")
-    .description("Modo interativo para análise de código")
+    .description("Interactive mode for code analysis")
     .action(async () => {
       try {
         const config = loadConfig();
 
-        console.log("🤖 rn-ai-optimize - Modo Interativo");
+        console.log("🤖 rn-ai-optimize - Interactive Mode");
         console.log("=".repeat(40));
 
-        // Verificar API Key
+        // Check API Key
         const apiKey = process.env[config.apiKey.env];
         if (!apiKey) {
           console.error(`❌ ${config.apiKey.description}`);
-          console.error(`   Variável não encontrada: ${config.apiKey.env}`);
+          console.error(
+            `   Environment variable not found: ${config.apiKey.env}`
+          );
           return;
         }
 
-        // Escolher tipo de análise
-        const analysisType = await select({
-          message: "Que tipo de arquivo você quer analisar?",
-          choices: [
-            { name: "🖥️  Tela (Screen)", value: "screens" },
-            { name: "🧩 Componente", value: "components" },
-            { name: "🔧 Serviço", value: "services" },
-            { name: "🛠️  Utilitário", value: "utils" },
-            { name: "📁 Arquivo específico", value: "custom" },
-          ],
-        });
-
-        let selectedFile: string;
-
-        if (analysisType === "custom") {
-          selectedFile = await input({
-            message: "Digite o caminho do arquivo:",
-            validate: (input: string) => {
-              if (!input.trim()) return "Por favor, digite um caminho";
-              if (!fs.existsSync(input)) return "Arquivo não encontrado";
-              if (!/\.(tsx?|jsx?)$/.test(input))
-                return "Arquivo deve ser .ts, .tsx, .js ou .jsx";
-              return true;
-            },
-          });
-        } else {
-          const directory = config.defaultPaths[analysisType];
-          const files = findFiles(directory);
-
-          if (files.length === 0) {
-            console.error(`❌ Nenhum arquivo encontrado em ${directory}`);
-            return;
-          }
-
-          selectedFile = await select({
-            message: `Escolha o arquivo em ${directory}:`,
-            choices: files.map((file) => ({
-              name: path.relative(process.cwd(), file),
-              value: file,
-            })),
-          });
-        }
-
-        // Confirmar configurações
         const useDefaults = await confirm({
-          message: `Usar configurações padrão? (${config.model}, ${config.language}, ${config.projectType})`,
+          message: `Use default settings? (${config.model}, English, ${config.projectType})`,
           default: true,
         });
 
@@ -142,41 +101,128 @@ export function createInteractiveCommand(): Command {
 
         if (!useDefaults) {
           model = await select({
-            message: "Escolha o modelo:",
+            message: "Choose the model:",
             choices: [
-              { name: "GPT-4o (Recomendado)", value: "gpt-4o" },
+              { name: "GPT-4o (Recommended)", value: "gpt-4o" },
               { name: "GPT-4", value: "gpt-4" },
               { name: "GPT-3.5 Turbo", value: "gpt-3.5-turbo" },
             ],
           });
 
           language = await select({
-            message: "Escolha o idioma:",
+            message: "Choose the language:",
             choices: [
-              { name: "Português", value: "pt" },
               { name: "English", value: "en" },
+              { name: "Português", value: "pt" },
             ],
           });
 
           projectType = await input({
-            message: "Tipo do projeto:",
+            message: "Project type:",
             default: config.projectType,
           });
 
           version = await input({
-            message: "Versão do projeto:",
+            message: "Project version:",
             default: config.version,
           });
         }
 
-        console.log("\n🔄 Iniciando análise...");
-        console.log(`📄 Arquivo: ${selectedFile}`);
-        console.log(`🤖 Modelo: ${model}`);
-        console.log(`🌍 Idioma: ${language}`);
-        console.log(`📱 Projeto: ${projectType} v${version}`);
+        // Choose analysis type
+        const analysisType = await select({
+          message: "What type of file do you want to analyze?",
+          choices: [
+            { name: "🖥️  Single Screen", value: "screens" },
+            { name: "🧩 Component", value: "components" },
+            { name: "📁 Multiple files", value: "multiple" },
+            { name: "🔧 Service", value: "services" },
+            { name: "🛠️  Utility", value: "utils" },
+            { name: "📄 Specific file", value: "custom" },
+          ],
+        });
+
+        if (analysisType === "multiple") {
+          const directory = await input({
+            message: "Enter directory to search for files:",
+            default: "src/",
+            validate: (input: string) => {
+              console.log(input);
+              if (!fs.existsSync(input)) return "Directory not found";
+              return true;
+            },
+          });
+
+          const files = findFiles(directory);
+
+          if (files.length === 0) {
+            console.error(`❌ No files found in ${directory}`);
+            return;
+          }
+
+          const batchMode = await confirm({
+            message:
+              "Process all files in parallel? (faster, but uses more API calls)",
+            default: false,
+          });
+
+          console.log(`\n📋 Found ${files.length} file(s) in ${directory}`);
+          console.log(`🤖 Model: ${model}`);
+          console.log(`🌍 Language: ${language}`);
+          console.log(`📱 Project: ${projectType} v${version}`);
+          console.log("=".repeat(40));
+
+          await analyzeMultipleFiles(
+            files,
+            model,
+            apiKey,
+            language,
+            projectType,
+            version,
+            batchMode
+          );
+
+          return;
+        }
+
+        let selectedFile: string;
+
+        if (analysisType === "custom") {
+          selectedFile = await input({
+            message: "Enter the file path:",
+            validate: (input: string) => {
+              if (!input.trim()) return "Please enter a path";
+              if (!fs.existsSync(input)) return "File not found";
+              if (!/\.(tsx?|jsx?)$/.test(input))
+                return "File must be .ts, .tsx, .js or .jsx";
+              return true;
+            },
+          });
+        } else {
+          const directory = config.defaultPaths[analysisType];
+          const files = findFiles(directory);
+
+          if (files.length === 0) {
+            console.error(`❌ No files found in ${directory}`);
+            return;
+          }
+
+          selectedFile = await select({
+            message: `Choose the file in ${directory}:`,
+            choices: files.map((file) => ({
+              name: path.relative(process.cwd(), file),
+              value: file,
+            })),
+          });
+        }
+
+        console.log("\n🔄 Starting analysis...");
+        console.log(`📄 File: ${selectedFile}`);
+        console.log(`🤖 Model: ${model}`);
+        console.log(`🌍 Language: ${language}`);
+        console.log(`📱 Project: ${projectType} v${version}`);
         console.log("=".repeat(40));
 
-        // Executar análise
+        // Execute analysis
         await analyzeFile(
           selectedFile,
           model,
@@ -186,7 +232,7 @@ export function createInteractiveCommand(): Command {
           version
         );
       } catch (error) {
-        console.error("❌ Erro:", error);
+        console.error("❌ Error:", error);
       }
     });
 

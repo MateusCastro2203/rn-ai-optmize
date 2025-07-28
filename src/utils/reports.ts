@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { t } from "./i18n/index.js";
+import { t } from "../i18n/index.js";
 
 interface AnalysisResult {
   filePath: string;

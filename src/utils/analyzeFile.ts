@@ -1,8 +1,8 @@
 import fs from "fs";
 import { buildPrompt, buildPromptTerminal } from "./prompt.js";
 import { askAI } from "./openai.js";
-import { t } from "./i18n/index.js";
-import { AnalysisResult, generateReports } from "./reports/index.js";
+import { t } from "../i18n/index.js";
+import { AnalysisResult, generateReports } from "../reports/index.js";
 
 export async function analyzeFile(
   filePath: string,
@@ -10,29 +10,17 @@ export async function analyzeFile(
   apiKey: string,
   language: string,
   projectType: string,
-  version: string
+  version: string,
+  batchMode?: boolean
 ) {
   const generateReport: boolean = true;
-  const isExpoProject =
-    fs.existsSync("app.json") || fs.existsSync("app.config.js");
-
-  if (isExpoProject) {
-    console.log(`📱 ${t("expo_project_detected")}`);
-  }
 
   if (!fs.existsSync(filePath)) {
     console.error(`❌ ${t("not_found", { file: filePath })}`);
     return;
   }
-  if (!filePath.match(/\.(tsx?|jsx?)$/)) {
-    console.error(`❌ ${t("invalid_file_type")}`);
-    return;
-  }
-  const code = fs.readFileSync(filePath, "utf-8");
 
-  if (!code.includes("react") && !code.includes("React")) {
-    console.warn(`⚠️  ${t("not_react_file")}`);
-  }
+  const code = fs.readFileSync(filePath, "utf-8");
 
   const prompt = buildPrompt(
     code,
@@ -85,6 +73,7 @@ export async function analyzeFile(
       analysis: result,
       timestamp: new Date().toISOString(),
       model,
+      batchMode,
     });
   }
 }
